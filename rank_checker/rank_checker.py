@@ -19,22 +19,27 @@ USER_AGENTS = [
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36',
 ]
 
+# from http://www.bigbossmas.com/web-development/list-of-mobile-device-sizes/
+# added these as they will eventually be running side by side for both desktop and mobile updates
+MOBILE_USER_AGENTS = [
+    'Mozilla/5.0 (Linux; U; Android 2.3.3; en-us; Sensation_4G Build/GRI40) AppleWebKit/533.1 (KHTML, like Gecko) Version/5.0 Safari/533.16',
+    'Mozilla/5.0 (Java 1.6.0_01; Windows XP 5.1 x86; en) ICEbrowser/v6_1_2',
+    'Mozilla/5.0 (Linux; Android 4.0.3; GT-N7000 Build/IML74K) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.166 Mobile Safari/535.19',
+    'Mozilla/5.0 (Linux; Android 4.0.3; GT-N7000 Build/IML74K) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.166 Mobile Safari/535.19',
+    'Mozilla/5.0 (Linux; Android 4.0.3; HTC One V Build/IML74K) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.166 Mobile Safari/535.19',
+    'Mozilla/5.0 (Linux; Android 4.0.3; HTC One V Build/IML74K) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.166 Mobile Safari/535.19',
+    'Mozilla/5.0 (Linux; Android 4.0.3; HTC PH39100 Build/IML74K) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.166 Mobile Safari/535.19',
+    'Mozilla/5.0 (Linux; Android 4.0.3; en-gb; GT-I5510 Build/IML74K) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.166 Mobile Safari/535.19'
+]
+
+referrer = ''
+
 def rank_checker(query):
     '''
     This is the initial rank checking script, it needs more thorough testing but initial
     tests are looking good.
 
     '''
-    headers = {
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            'Accept-Encoding': 'gzip,deflate',
-            'Accept-Language': 'en-US,en;q=0.8,zh-TW;q=0.6,zh;q=0.4',
-            'Cache-Control': 'no-cache',
-            'Connection': 'close',
-            'DNT': '1',
-            'Pragma': 'no-cache',
-            'User-Agent': random.choice(USER_AGENTS),
-        }
 
     proxies = None # add optional proxy
 
@@ -49,6 +54,23 @@ def rank_checker(query):
         url = "http://www.google.com/search?q=" + query.replace(' ', '+') + "&start=" + str(start*10) \
          + '&num=10&pws=0&filter=0'
 
+        if rank_position < 1:
+            referrer = 'http://www.google.com'
+        else:
+            pass
+            
+        headers = {
+              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+              'Accept-Encoding': 'gzip,deflate',
+              'Accept-Language': 'en-US,en;q=0.8,zh-TW;q=0.6,zh;q=0.4',
+              'Cache-Control': 'no-cache',
+              'Connection': 'close',
+              'DNT': '1',
+              'Pragma': 'no-cache',
+              'Referrer' : referrer, 
+              'User-Agent': random.choice(USER_AGENTS)
+              }
+      
         r = requests.get(url, timeout=20, headers=headers, proxies=proxies)
         data = r.text
         soup = BeautifulSoup(data)
@@ -57,6 +79,8 @@ def rank_checker(query):
         results = soup.findAll("h3", { "class" : "r" })
         for div in results:
             rank_position += 1
-            print '#{}'.format(rank_position), div.find('a')['href']
+            print '#{}'.format(rank_position), div.find('a')['href'], 'Ref {}'.format(referrer)
+
+        referrer = url
 
 rank_checker(query) # query being the search result!!
