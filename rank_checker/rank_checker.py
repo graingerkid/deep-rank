@@ -78,8 +78,15 @@ def rank_checker(query):
 
         results = soup.findAll("h3", { "class" : "r" })
         for div in results:
-            rank_position += 1
-            print '#{}'.format(rank_position), div.find('a')['href'] # 'Ref {}'.format(referrer) - testing the referrer
+            try:
+                if div.find('a', href=True) is not None:
+                    if div.find('a', href=True)['href'].startswith('/search?'):
+                        pass
+                    else:
+                        print '#{}'.format(rank_position), div.find('a', href=True)['href']
+                        rank_position += 1
+            except:
+                pass
 
         referrer = url
 
